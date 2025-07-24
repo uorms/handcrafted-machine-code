@@ -40,13 +40,13 @@
 # write
 B8 04 00 00 00  # eax <- 4
 BB 01 00 00 00  # ebx <- 1
-B9 76 80 04 08  # ecx <- vaddr of string
+B9 6F 80 04 08  # ecx <- vaddr of string
 BA 0E 00 00 00  # edx <- size of string
 CD 80           # int 0x80
 
 # exit
-B8 01 00 00 00  # eax <- 1
-BB 00 00 00 00  # ebx <- 0
+89 D8           # mov eax, ebx   op[10001001] ModR/M[11 011 000]
+4B              # dec ebx
 CD 80           # int 0x80
 
 # string "Hello, World!\n"
