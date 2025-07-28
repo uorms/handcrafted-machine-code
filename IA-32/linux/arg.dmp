@@ -1,0 +1,55 @@
+# ELF HEADER
+
+7F 45 4C 46  # ELF magic
+
+01   # class (32-bit)
+01   # endianess (LSB)
+01   # ELF version
+00   # OSABI
+00   # OSABI version (or additional padding)
+
+00 00 00 00 00 00 00  # padding
+
+02 00        # e_type (ET_EXEC)
+03 00        # e_machine
+01 00 00 00  # e_version
+54 80 04 08  # e_entry
+34 00 00 00  # e_phoff
+00 00 00 00  # e_shoff
+00 00 00 00  # e_flags
+34 00        # e_ehsize
+20 00        # e_phentsize
+01 00        # e_phnum
+28 00        # e_shentsize
+00 00        # e_shnum
+00 00        # e_shstrndx
+
+# PROGRAM HEADER (0x34)
+
+01 00 00 00  # p_type 1=loadable segment
+54 00 00 00  # file offset
+54 80 04 08  # mem offset
+00 00 00 00  # paddr
+30 00 00 00  # filesz
+30 00 00 00  # memsz
+05 00 00 00  # flags (R_X)
+00 00 00 00  # p_align
+
+# PROGRAM SEGMENT (0x54)
+
+# write
+55              # push ebp
+89 E5           # ebp <- esp
+8B 4D 0C        # ecx <- [ebp+12]
+B8 04 00 00 00  # eax <- 4
+BB 01 00 00 00  # ebx <- 1
+BA 06 00 00 00  # edx <- size of string
+CD 80           # int 0x80
+
+#58              # pop ebp
+
+# exit
+89 D8           # mov eax, ebx   op[10001001] ModR/M[11 011 000]
+4B              # dec ebx
+CD 80           # int 0x80
+
