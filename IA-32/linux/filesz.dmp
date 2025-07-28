@@ -30,23 +30,16 @@
 54 00 00 00  # file offset
 54 80 04 08  # mem offset
 00 00 00 00  # paddr
-40 00 00 00  # filesz
-40 00 00 00  # memsz
+00 01 00 00  # filesz
+00 01 00 00  # memsz
 07 00 00 00  # flags (RWX)
 00 00 00 00  # p_align
 
 # PROGRAM SEGMENT (0x54)
 
-# @write hello
-B8 04 00 00 00  # eax <- 4
-BB 01 00 00 00  # ebx <- 1
-B9 C1 80 04 08  # ecx <- vaddr of string
-BA 0E 00 00 00  # edx <- size of string
-CD 80           # int 0x80
-
 # @open file // file descriptor returned in eax
 B8 05 00 00 00  # open
-BB CF 80 04 08  # filename address
+BB D7 80 04 08  # filename address
 B9 00 00 00 00  # O_RDONLY
 BA 00 00 00 00  # mode (don't know what this does)
 CD 80
@@ -58,9 +51,28 @@ CD 80
 B8 03 00 00 00  # read
 8B FC           # edi <- esp
 8B 5F 00        # ebx <- [edi+0]
-B9 D3 80 04 08  # buf addr
-BA 01 00 00 00  # count
+B9 DB 80 04 08  # buffer addr
+BA 04 00 00 00  # count
 CD 80
+
+# @lseek file
+B8 13 00 00 00 # eax <- lseek
+B9 00 00 00 00 # ecx <- 0
+BA 02 00 00 00 # edx <- SEEK_END?
+CD 80
+# result = eax <- file size
+
+# @mov file size to buffer
+BF DF 80 04 08 # buffer2 addr
+89 47 00       # [edi+0] <- eax
+
+# @print file size
+B8 04 00 00 00 # eax <- 4 (write)
+BB 01 00 00 00 # ebx <- 1 (stdout)
+89 F9          # ecx <- edi
+BA 04 00 00 00 # edx <- 1
+CD 80
+
 
 # @close file
 B8 06 00 00 00  # close
@@ -70,22 +82,19 @@ CD 80
 # @print buffer
 B8 04 00 00 00
 BB 01 00 00 00
-B9 D3 80 04 08
+B9 DB 80 04 08
 BA 01 00 00 00
 CD 80
 
 # exit
-B8 01 00 00 00
-BB 00 00 00 00
-CD 80
+B8 01 00 00 00 # 
+BB 00 00 00 00 # 
+CD 80          # D7
 
-# @hello world  (0xC1)
-48 65 6C 6C 6F
-2C 20 57 6F 72
-6C 64 21 0A
+# @filename
+41 42 43 00    # DB
+# @buffer
+DE AD BE EF    # DF
+# @buffer2
+FE AD CA BE    # E3
 
-# @filename (0xCF)
-41 42 43 00
-
-# @buffer  189 (0xD3)
-01 00 00 00
