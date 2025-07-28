@@ -38,9 +38,8 @@
 # PROGRAM SEGMENT (0x54)
 
 # write
-55              # push ebp
 89 E5           # ebp <- esp
-8B 4D 0C        # ecx <- [ebp+12]
+8B 4D 08        # ecx <- [ebp+8]
 B8 04 00 00 00  # eax <- 4
 BB 01 00 00 00  # ebx <- 1
 BA 06 00 00 00  # edx <- size of string
