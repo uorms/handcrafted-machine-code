@@ -38,17 +38,19 @@
 # PROGRAM SEGMENT (0x54)
 
 # write
+50              # push eax
 89 E5           # ebp <- esp
-8B 4D 08        # ecx <- [ebp+8]
+8B 4D 0C        # ecx <- [ebp+12]
 B8 04 00 00 00  # eax <- 4
 BB 01 00 00 00  # ebx <- 1
 BA 06 00 00 00  # edx <- size of string
 CD 80           # int 0x80
 
-#58              # pop ebp
+#58              # pop eax
 
 # exit
 89 D8           # mov eax, ebx   op[10001001] ModR/M[11 011 000]
-4B              # dec ebx
+#4B              # dec ebx
+5B              # pop ebx
 CD 80           # int 0x80
 

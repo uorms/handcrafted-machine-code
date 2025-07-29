@@ -1,0 +1,83 @@
+#
+7F 45 4C 46 01 01 01 00
+00 00 00 00 00 00 00 00
+
+02 00
+03 00
+01 00 00 00
+54 80 04 08
+34 00 00 00
+00 00 00 00
+00 00 00 00
+34 00
+20 00
+01 00
+28 00
+00 00
+00 00
+
+01 00 00 00
+54 00 00 00
+54 80 04 08
+00 00 00 00
+60 00 00 00
+60 00 00 00
+07 00 00 00
+00 00 00 00
+
+# @get digits init
+B8 2A 00 00 00  # mov eax, 42
+BB 0A 00 00 00  # mov edx, 42
+B9 B2 80 04 08  # mov ecx, @buffer
+BF 00 00 00 00  # mov edi, 0
+
+# @get digits lsd (least significant digits)
+50              # push eax
+83 C0 F7        # sub eax, -9
+76 10           # jbe @get digits msd
+58              # pop eax
+
+F7 C2           # div 10  (eax = quotient; edx = remainder)
+83 C2 30        # add edx, 30
+51              # push ecx
+
+01 F9           # add ecx, edi
+89 51 00        # mov [ecx], edx
+59              # pop ecx
+
+47              # inc edi
+EB EA           # jmp @get digits lsd
+
+# @get digits msd (most significant digit)
+58              # pop eax
+83 C0 30        # add eax, 30
+
+51              # push ecx
+01 F9           # add ecx, edi
+89 41 00        # mov [ecx], eax
+59              # pop ecx
+
+# @print digits
+B8 04 00 00 00   # mov eax, 4
+BB 01 00 00 00   # mov ebx, 1
+BA 01 00 00 00   # mov edx, 1
+
+# @print digits loop
+51               # push ecx
+01 F9            # add ecx, edi
+CD 80            # syscall (write)
+59               # pop ecx
+83 C7 00         # xor edi, 0
+74 03            # jz @exit
+3F               # dec edi
+EB F2            # jmp @print digits loop
+
+# @exit
+B8 01 00 00 00  # mov eax, 1
+BB 00 00 00 00  # mov ebx, 0
+CD 80
+
+# @buffer
+30 30 30 30 30 30 30 30 30 30 30 30 30 30 30 30
+
+
