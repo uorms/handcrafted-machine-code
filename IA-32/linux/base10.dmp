@@ -1,0 +1,92 @@
+# ELF HEADER
+7F 45 4C 46 01 01 01 00
+00 00 00 00 00 00 00 00
+
+02 00
+03 00
+01 00 00 00
+54 80 04 08
+34 00 00 00
+00 00 00 00
+00 00 00 00
+34 00
+20 00
+01 00
+28 00
+00 00
+00 00
+
+# PROGRAM HEADER
+01 00 00 00
+54 00 00 00
+54 80 04 08
+00 00 00 00
+60 00 00 00
+60 00 00 00
+07 00 00 00
+00 00 00 00
+
+# PROGRAM SEGMENT
+# converts a number to the ascii representation of digits
+# in Base10 and writes result to stdout
+
+# @get digits init
+B8 7F 00 00 00  # mov eax, 127 (low
+B9 C5 80 04 08  # mov ecx, @buffer
+BF 00 00 00 00  # mov edi, 0
+
+# @get digits lsd (least significant digits)
+BA 00 00 00 00  # mov edx, 0  (high)
+50              # push eax
+83 E8 0A        # sub eax, -10
+78 17           # js @get digits msd
+58              # pop eax
+51              # push ecx
+B9 0A 00 00 00  # mov ecx, 10
+F7 F1           # div 10  (eax = quotient; edx = remainder)
+59              # pop ecx
+83 C2 30        # add edx, 30
+51              # push ecx
+01 F9           # add ecx, edi
+89 51 00        # mov [ecx], edx
+59              # pop ecx
+47              # inc edi
+EB DE           # jmp @get digits lsd
+
+# @get digits msd (most significant digit)
+58              # pop eax
+83 C0 30        # add eax, 30
+51              # push ecx
+01 F9           # add ecx, edi
+89 41 00        # mov [ecx], eax
+59              # pop ecx
+
+# @print digits
+B8 04 00 00 00   # mov eax, 4
+BB 01 00 00 00   # mov ebx, 1
+BA 01 00 00 00   # mov edx, 1
+51               # push ecx
+01 F9            # add ecx, edi
+CD 80            # syscall (write)
+59               # pop ecx
+83 F7 00         # xor edi, 0
+74 03            # jz @exit
+4F               # dec edi
+EB E3            # jmp @print digits
+
+B8 04 00 00 00   # mov eax, 4
+B9 D5 80 04 08   # mov ecx, "\n"
+CD 80
+
+# @exit
+B8 01 00 00 00  # mov eax, 1
+BB 00 00 00 00  # mov ebx, 0
+CD 80
+
+# @buffer
+0A 0A 0A 0A 0A 0A 0A 0A 0A 0A 0A 0A 0A 0A 0A 0A
+
+# @newline
+0A
+
+
