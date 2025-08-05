@@ -27,10 +27,11 @@
 00 00 00 00
 
 # PROGRAM SEGMENT
-# converts numbers into ascii digits
+# converts a number to the ascii representation of digits
+# in Base10 and writes result to stdout
 
 # @get digits init
-B8 7F 00 00 00  # mov eax, 42 (low
+B8 7F 00 00 00  # mov eax, 127 (low
 B9 C5 80 04 08  # mov ecx, @buffer
 BF 00 00 00 00  # mov edi, 0
 
