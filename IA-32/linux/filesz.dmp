@@ -73,7 +73,6 @@ BB 01 00 00 00 # ebx <- 1 (stdout)
 BA 04 00 00 00 # edx <- 1
 CD 80
 
-
 # @close file
 B8 06 00 00 00  # close
 5B              # pop ebx
