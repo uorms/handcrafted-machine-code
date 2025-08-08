@@ -39,32 +39,24 @@
 
 # @open file // file descriptor returned in eax
 B8 05 00 00 00  # open
-BB D7 80 04 08  # filename address
+BB A7 80 04 08  # filename address
 B9 00 00 00 00  # O_RDONLY
-BA 00 00 00 00  # mode (don't know what this does)
 CD 80
 
 # save fd
 50  # push eax
 
-# @read file
-B8 03 00 00 00  # read
-8B FC           # edi <- esp
-8B 5F 00        # ebx <- [edi+0]
-B9 DB 80 04 08  # buffer addr
-BA 04 00 00 00  # count
-CD 80
-
 # @lseek file
+89 C3          # ebx <- eax
 B8 13 00 00 00 # eax <- lseek
 B9 00 00 00 00 # ecx <- 0
-BA 02 00 00 00 # edx <- SEEK_END?
+BA 02 00 00 00 # edx <- SEEK_END
 CD 80
 # result = eax <- file size
 
 # @mov file size to buffer
-BF DF 80 04 08 # buffer2 addr
-89 47 00       # [edi+0] <- eax
+BF AB 80 04 08 # buffer addr
+89 07          # [edi] <- eax
 
 # @print file size
 B8 04 00 00 00 # eax <- 4 (write)
@@ -78,22 +70,13 @@ B8 06 00 00 00  # close
 5B              # pop ebx
 CD 80
 
-# @print buffer
-B8 04 00 00 00
-BB 01 00 00 00
-B9 DB 80 04 08
-BA 01 00 00 00
+# exit
+B8 01 00 00 00
+BB 00 00 00 00
 CD 80
 
-# exit
-B8 01 00 00 00 # 
-BB 00 00 00 00 # 
-CD 80          # D7
-
 # @filename
-41 42 43 00    # DB
+41 42 43 00
 # @buffer
-DE AD BE EF    # DF
-# @buffer2
-FE AD CA BE    # E3
+DE AD BE EF
 
