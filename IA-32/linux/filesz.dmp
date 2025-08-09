@@ -37,46 +37,88 @@
 
 # PROGRAM SEGMENT (0x54)
 
-# @open file // file descriptor returned in eax
-B8 05 00 00 00  # open
-BB A7 80 04 08  # filename address
-B9 00 00 00 00  # O_RDONLY
+# open file using filepath provided as arg
+55              # push ebp
+89 E5           # mov ebp, esp
+8B 5D 0C        # mov ebx, [ebp+12]
+B8 05 00 00 00  # mov eax, 5
+B9 00 00 00 00  # mov ecx, O_RDONLY
 CD 80
 
 # save fd
-50  # push eax
+50             # push eax
 
-# @lseek file
-89 C3          # ebx <- eax
-B8 13 00 00 00 # eax <- lseek
-B9 00 00 00 00 # ecx <- 0
-BA 02 00 00 00 # edx <- SEEK_END
+# get file size using lseek syscall
+89 C3          # mov ebx, eax
+B8 13 00 00 00 # mov eax, 19 (lseek number)
+B9 00 00 00 00 # mov ecx, 0
+BA 02 00 00 00 # mov edx, SEEK_END
 CD 80
-# result = eax <- file size
 
-# @mov file size to buffer
-BF AB 80 04 08 # buffer addr
-89 07          # [edi] <- eax
-
-# @print file size
-B8 04 00 00 00 # eax <- 4 (write)
-BB 01 00 00 00 # ebx <- 1 (stdout)
-89 F9          # ecx <- edi
-BA 04 00 00 00 # edx <- 1
-CD 80
+# save filesz
+89 C7           # mov edi, eax
 
 # @close file
 B8 06 00 00 00  # close
 5B              # pop ebx
 CD 80
 
+89 F8           # mov eax, edi
+31 FF           # xor edi, edi
+
+# @get digits lsd (least significant digits)
+BA 00 00 00 00  # mov edx, 0  (high)
+50              # push eax
+83 E8 0A        # sub eax, -10
+78 17           # js @get digits msd
+58              # pop eax
+51              # push ecx
+B9 0A 00 00 00  # mov ecx, 10
+F7 F1           # div 10  (eax = quotient; edx = remainder)
+59              # pop ecx
+83 C2 30        # add edx, 30
+51              # push ecx
+01 F9           # add ecx, edi
+89 51 00        # mov [ecx], edx
+59              # pop ecx
+47              # inc edi
+EB DE           # jmp @get digits lsd
+
+# @get digits msd (most significant digit)
+58              # pop eax
+83 C0 30        # add eax, 30
+51              # push ecx
+01 F9           # add ecx, edi
+89 41 00        # mov [ecx], eax
+59              # pop ecx
+
+# @print digits
+B8 04 00 00 00   # mov eax, 4
+BB 01 00 00 00   # mov ebx, 1
+BA 01 00 00 00   # mov edx, 1
+51               # push ecx
+01 F9            # add ecx, edi
+CD 80            # syscall (write)
+59               # pop ecx
+83 F7 00         # xor edi, 0
+74 03            # jz @exit
+4F               # dec edi
+EB E3            # jmp @print digits
+
+B8 04 00 00 00   # mov eax, 4
+B9 D5 80 04 08   # mov ecx, "\n"
+CD 80
+
+# restore base pointer
+5D               # pop ebp
+
 # exit
 B8 01 00 00 00
 BB 00 00 00 00
 CD 80
 
-# @filename
-41 42 43 00
 # @buffer
 DE AD BE EF
 
+# @buffer2
+0A 0A 0A 0A 0A 0A 0A 0A 0A 0A 0A
