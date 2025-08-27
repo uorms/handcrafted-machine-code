@@ -1,0 +1,133 @@
+# ELF HEADER
+
+7F 45 4C 46  # ELF magic
+
+01   # class (32-bit)
+01   # endianess (LSB)
+01   # ELF version
+00   # OSABI
+00   # OSABI version (or additional padding)
+
+00 00 00 00 00 00 00  # padding
+
+02 00        # e_type (ET_EXEC)
+03 00        # e_machine
+01 00 00 00  # e_version
+54 80 04 08  # e_entry
+34 00 00 00  # e_phoff
+00 00 00 00  # e_shoff
+00 00 00 00  # e_flags
+34 00        # e_ehsize
+20 00        # e_phentsize
+01 00        # e_phnum
+28 00        # e_shentsize
+00 00        # e_shnum
+00 00        # e_shstrndx
+
+# PROGRAM HEADER (0x34)
+
+01 00 00 00  # p_type 1=loadable segment
+54 00 00 00  # file offset
+54 80 04 08  # mem offset
+00 00 00 00  # paddr
+00 01 00 00  # filesz
+00 01 00 00  # memsz
+07 00 00 00  # flags (RWX)
+00 00 00 00  # p_align
+
+# PROGRAM SEGMENT (0x54)
+
+# open file using filepath provided as arg
+55              # push ebp
+89 E5           # mov ebp, esp
+8B 5D 0C        # mov ebx, [ebp+12]
+B8 05 00 00 00  # mov eax, 5
+B9 00 00 00 00  # mov ecx, O_RDONLY
+CD 80
+
+# save fd
+50             # push eax
+
+# get file size using lseek syscall
+89 C3          # mov ebx, eax
+B8 13 00 00 00 # mov eax, 19 (lseek number)
+B9 00 00 00 00 # mov ecx, 0
+BA 02 00 00 00 # mov edx, SEEK_END
+CD 80
+
+# save filesz
+#89 C7           # mov edi, eax
+50              # push eax
+
+# @close file
+B8 06 00 00 00  # close
+#5B              # pop ebx
+89 E7           # mov edi, esp
+8B 5F 04        # mov ebx, [edi+4]
+CD 80
+
+# mmap2
+B8 C0 00 00 00
+BB 00 00 00 00
+B9 00 10 00 00
+BA 03 00 00 00
+BE 22 00 00 00
+BF FF FF FF FF
+BD 00 00 00 00
+CD 80
+
+89 C1             # mov ecx, eax
+58                # pop eax
+31 FF             # xor edi, edi
+47                # inc edi
+C7 01 0A 00 00 00 # mov [ecx], 0x0A
+
+
+# @get digits lsd (least significant digits)
+BA 00 00 00 00  # mov edx, 0  (high)
+50              # push eax
+83 E8 0A        # sub eax, -10
+78 17           # js @get digits msd
+58              # pop eax
+51              # push ecx
+B9 0A 00 00 00  # mov ecx, 10
+F7 F1           # div 10  (eax = quotient; edx = remainder)
+59              # pop ecx
+83 C2 30        # add edx, 30
+51              # push ecx
+01 F9           # add ecx, edi
+89 51 00        # mov [ecx+0], edx
+59              # pop ecx
+47              # inc edi
+EB DE           # jmp @get digits lsd
+
+# @get digits msd (most significant digit)
+58              # pop eax
+83 C0 30        # add eax, 30
+51              # push ecx
+01 F9           # add ecx, edi
+89 01           # mov [ecx], eax
+59              # pop ecx
+
+
+# @print digits
+B8 04 00 00 00   # mov eax, 4
+BB 01 00 00 00   # mov ebx, 1
+BA 01 00 00 00   # mov edx, 1
+51               # push ecx
+01 F9            # add ecx, edi
+CD 80            # int 0x80
+59               # pop ecx
+83 F7 00         # xor edi, 0
+74 03            # jz @exit
+4F               # dec edi
+EB E3            # jmp @print digits
+
+58               # pop eax
+5D               # pop ebp
+
+# exit
+B8 01 00 00 00
+BB 00 00 00 00
+CD 80
+
